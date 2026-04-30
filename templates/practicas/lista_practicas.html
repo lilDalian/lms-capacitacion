@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Prácticas Operativas{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado de Página -->
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="fw-bold text-white mb-1">Prácticas Operativas</h1>
+            <p class="text-secondary mb-0">Gestión de capacitación en formato Kanban</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'nueva_cedula' %}" class="btn btn-primary px-4 shadow-sm">
+                <i class="fas fa-plus me-2"></i>Nueva Práctica
+            </a>
+        </div>
+    </div>
+
+    <!-- Tablero Kanban -->
+    <div class="row g-4">
+        
+        <!-- Columna: Programadas -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #1a1d27; min-height: 70vh;">
+                <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background-color: #3b82f6; color: white;">
+                    <span class="fw-bold text-uppercase small tracking-wider">
+                        <i class="fas fa-calendar-check me-2"></i>Programadas
+                    </span>
+                    <span class="badge bg-white text-primary rounded-pill shadow-sm">{{ programadas|length }}</span>
+                </div>
+                <div class="card-body p-3">
+                    {% for p in programadas %}
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" style="background-color: #0f1117; border-left: 4px solid #3b82f6 !important;">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
+                            <div class="small text-secondary mb-3">
+                                <div class="mb-1"><i class="fas fa-user-tie me-2 text-primary opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
+                                <div class="mb-1"><i class="fas fa-building me-2 text-primary opacity-75"></i>{{ p.departamento.nombre }}</div>
+                                <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-primary opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
+                                <div><i class="fas fa-clock me-2 text-primary opacity-75"></i>{{ p.duracion_minutos }} min</div>
+                            </div>
+                            <div class="d-grid">
+                                <a href="#" class="btn btn-sm btn-outline-secondary text-light border-secondary hover-opacity">Ver detalle</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 opacity-50">
+                        <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">No hay prácticas en este estado</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna: Pendientes -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #1a1d27; min-height: 70vh;">
+                <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background-color: #eab308; color: white;">
+                    <span class="fw-bold text-uppercase small tracking-wider">
+                        <i class="fas fa-clock me-2"></i>Pendientes
+                    </span>
+                    <span class="badge bg-white text-warning rounded-pill shadow-sm">{{ pendientes|length }}</span>
+                </div>
+                <div class="card-body p-3">
+                    {% for p in pendientes %}
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" style="background-color: #0f1117; border-left: 4px solid #eab308 !important;">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
+                            <div class="small text-secondary mb-3">
+                                <div class="mb-1"><i class="fas fa-user-tie me-2 text-warning opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
+                                <div class="mb-1"><i class="fas fa-building me-2 text-warning opacity-75"></i>{{ p.departamento.nombre }}</div>
+                                <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-warning opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
+                                <div><i class="fas fa-clock me-2 text-warning opacity-75"></i>{{ p.duracion_minutos }} min</div>
+                            </div>
+                            <div class="d-grid">
+                                <a href="#" class="btn btn-sm btn-outline-secondary text-light border-secondary hover-opacity">Ver detalle</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 opacity-50">
+                        <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">No hay prácticas en este estado</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna: Completadas -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #1a1d27; min-height: 70vh;">
+                <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background-color: #22c55e; color: white;">
+                    <span class="fw-bold text-uppercase small tracking-wider">
+                        <i class="fas fa-check-circle me-2"></i>Completadas
+                    </span>
+                    <span class="badge bg-white text-success rounded-pill shadow-sm">{{ completadas|length }}</span>
+                </div>
+                <div class="card-body p-3">
+                    {% for p in completadas %}
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" style="background-color: #0f1117; border-left: 4px solid #22c55e !important;">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
+                            <div class="small text-secondary mb-3">
+                                <div class="mb-1"><i class="fas fa-user-tie me-2 text-success opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
+                                <div class="mb-1"><i class="fas fa-building me-2 text-success opacity-75"></i>{{ p.departamento.nombre }}</div>
+                                <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-success opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
+                                <div><i class="fas fa-clock me-2 text-success opacity-75"></i>{{ p.duracion_minutos }} min</div>
+                            </div>
+                            <div class="d-grid">
+                                <a href="#" class="btn btn-sm btn-outline-secondary text-light border-secondary hover-opacity">Ver detalle</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 opacity-50">
+                        <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">No hay prácticas en este estado</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .kanban-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kanban-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    }
+    .hover-opacity:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: white !important;
+    }
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}

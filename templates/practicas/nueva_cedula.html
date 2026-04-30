@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Cédula{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos Premium para Formularios Oscuros */
+    .card-custom {
+        background-color: #1e293b; /* Fondo un poco más claro que el base */
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .form-control, .form-select {
+        background-color: #0f1117;
+        border: 1px solid #334155;
+        color: var(--text-light);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #0f1117;
+        border-color: var(--primary-blue);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    }
+
+    /* Ocultar icono de calendario default en algunos navegadores para estilizar mejor */
+    ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .section-title {
+        color: var(--primary-blue);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #334155;
+    }
+
+    /* Lista dinámica de colaboradores */
+    .colaborador-item {
+        background-color: #0f1117;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-remove {
+        color: #ef4444;
+        background: transparent;
+        border: none;
+        transition: color 0.2s;
+    }
+    .btn-remove:hover {
+        color: #dc2626;
+    }
+
+    .btn-outline-custom {
+        color: var(--text-light);
+        border: 1px solid #334155;
+        background: transparent;
+    }
+    .btn-outline-custom:hover {
+        background-color: #334155;
+        color: white;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Registrar Nueva Cédula</h2>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-custom"><i class="fa-solid fa-arrow-left me-2"></i>Volver al Dashboard</a>
+        </div>
+
+        <div class="card card-custom p-4 p-md-5">
+            <form action="{% url 'nueva_cedula' %}" method="POST" id="cedulaForm">
+                {% csrf_token %}
+
+                <!-- SECCIÓN 1 — Datos del curso -->
+                <div class="section-title"><i class="fa-solid fa-book me-2"></i>SECCIÓN 1 — Datos del curso</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <label for="nombre_curso" class="form-label">Nombre del Curso</label>
+                        <input type="text" class="form-control" id="nombre_curso" name="nombre_curso" required placeholder="Ej. Inducción a Seguridad Industrial">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="instructor" class="form-label">Instructor</label>
+                        <select class="form-select" id="instructor" name="instructor" required>
+                            <option value="" disabled selected>Selecciona un instructor...</option>
+                            {% for inst in instructores %}
+                                <option value="{{ inst.id }}">{{ inst.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="lugar" class="form-label">Lugar</label>
+                        <input type="text" class="form-control" id="lugar" name="lugar" required placeholder="Ej. Sala de Juntas A">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="duracion_minutos" class="form-label">Duración</label>
+                        <select class="form-select" id="duracion_minutos" name="duracion_minutos" required>
+                            <option value="" disabled selected>Selecciona duración...</option>
+                            <option value="15">15 Minutos</option>
+                            <option value="30">30 Minutos</option>
+                            <option value="60">60 Minutos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2 — Periodo -->
+                <div class="section-title"><i class="fa-regular fa-calendar-days me-2"></i>SECCIÓN 2 — Periodo</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="fecha_fin" class="form-label">Fecha Final</label>
+                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3 — Horario -->
+                <div class="section-title"><i class="fa-regular fa-clock me-2"></i>SECCIÓN 3 — Horario</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                        <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="hora_fin" class="form-label">Hora Final</label>
+                        <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4 — Estatus y expiración -->
+                <div class="section-title"><i class="fa-solid fa-chart-pie me-2"></i>SECCIÓN 4 — Estatus y expiración</div>
+                <div class="row g-3 mb-5">
+                    <div class="col-md-6">
+                        <label for="estatus" class="form-label">Estatus</label>
+                        <select class="form-select" id="estatus" name="estatus" required>
+                            <option value="Programado" selected>Programado</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Completado">Completado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="fecha_expiracion" class="form-label">Fecha de Expiración</label>
+                        <input type="date" class="form-control" id="fecha_expiracion" name="fecha_expiracion" required>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 5 — Colaboradores inscritos -->
+                <div class="section-title"><i class="fa-solid fa-users me-2"></i>SECCIÓN 5 — Colaboradores inscritos</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="nuevo_colaborador" placeholder="Ingresa el nombre o número del colaborador">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-primary w-100 h-100" id="btnAgregarColaborador">
+                            <i class="fa-solid fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedor de la lista dinámica -->
+                <div id="lista_colaboradores" class="mb-5">
+                    <!-- Los colaboradores se añadirán aquí vía JS -->
+                </div>
+
+                <!-- Contenedor Oculto para enviar los datos de los colaboradores en el POST -->
+                <div id="colaboradores_hidden_inputs"></div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-secondary">
+                    <button type="reset" class="btn btn-outline-custom px-4" id="btnReset">Restablecer</button>
+                    <button type="submit" class="btn btn-primary-custom px-5">
+                        <i class="fa-solid fa-save me-2"></i> Guardar Cédula
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Lógica JS para la lista dinámica -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const btnAgregar = document.getElementById('btnAgregarColaborador');
+        const inputColaborador = document.getElementById('nuevo_colaborador');
+        const listaColaboradores = document.getElementById('lista_colaboradores');
+        const hiddenInputsContainer = document.getElementById('colaboradores_hidden_inputs');
+        const btnReset = document.getElementById('btnReset');
+        let colaboradorCount = 0;
+
+        function agregarColaborador() {
+            const nombre = inputColaborador.value.trim();
+            if (nombre === "") return;
+
+            colaboradorCount++;
+
+            // Crear elemento visual en la lista
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'colaborador-item';
+            itemDiv.id = 'colab_item_' + colaboradorCount;
+            itemDiv.innerHTML = `
+                <span><i class="fa-solid fa-user me-2 text-secondary"></i> ${nombre}</span>
+                <button type="button" class="btn-remove" onclick="removerColaborador(${colaboradorCount})">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+            listaColaboradores.appendChild(itemDiv);
+
+            // Crear input hidden para mandar en el POST (name="colaboradores[]")
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'colaboradores[]';
+            hiddenInput.value = nombre;
+            hiddenInput.id = 'colab_hidden_' + colaboradorCount;
+            hiddenInputsContainer.appendChild(hiddenInput);
+
+            // Limpiar input y enfocar
+            inputColaborador.value = "";
+            inputColaborador.focus();
+        }
+
+        // Evento click del botón
+        btnAgregar.addEventListener('click', agregarColaborador);
+
+        // Permitir agregar presionando "Enter"
+        inputColaborador.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evita que se haga submit del formulario
+                agregarColaborador();
+            }
+        });
+
+        // Limpiar lista dinámica si presionan "Restablecer"
+        btnReset.addEventListener('click', function() {
+            listaColaboradores.innerHTML = '';
+            hiddenInputsContainer.innerHTML = '';
+        });
+
+        // Hacer la función global para el onclick del botón de remover
+        window.removerColaborador = function(id) {
+            const item = document.getElementById('colab_item_' + id);
+            const hidden = document.getElementById('colab_hidden_' + id);
+            if(item) item.remove();
+            if(hidden) hidden.remove();
+        };
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Reporte de HH por Departamento{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">Reporte de Horas Hombre (HH)</h1>
+    <p class="text-gray-400">Consulta de HHC generadas por cada departamento.</p>
+</div>
+
+<!-- Filtros -->
+<div class="bg-[#1a1d27] p-6 rounded-xl border border-gray-800 mb-8 shadow-lg">
+    <form method="GET" action="{% url 'reporte_hh' %}" class="flex flex-wrap gap-4 items-end">
+        <div class="w-full md:w-1/3">
+            <label for="mes" class="block text-sm font-medium text-gray-400 mb-2">Mes</label>
+            <select name="mes" id="mes" class="w-full bg-[#0f1117] border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] outline-none transition-colors">
+                {% for m_num, m_nombre in meses %}
+                    <option value="{{ m_num }}" {% if m_num == mes_actual %}selected{% endif %}>{{ m_nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="w-full md:w-1/3">
+            <label for="anio" class="block text-sm font-medium text-gray-400 mb-2">Año</label>
+            <select name="anio" id="anio" class="w-full bg-[#0f1117] border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] outline-none transition-colors">
+                {% for a in anios %}
+                    <option value="{{ a }}" {% if a == anio_actual %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="w-full md:w-auto">
+            <button type="submit" class="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <i class="fas fa-filter mr-2"></i> Filtrar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de Resultados -->
+<div class="bg-[#1a1d27] rounded-xl border border-gray-800 overflow-hidden shadow-lg">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-[#0f1117] text-gray-400 text-sm uppercase tracking-wider border-b border-gray-800">
+                    <th class="px-6 py-4 font-medium">Departamento</th>
+                    <th class="px-6 py-4 font-medium text-center">Total H <span class="text-xs text-gray-500 lowercase font-normal">(minutos)</span></th>
+                    <th class="px-6 py-4 font-medium text-center">HC <span class="text-xs text-gray-500 lowercase font-normal">(asistentes)</span></th>
+                    <th class="px-6 py-4 font-medium text-center text-[#3b82f6]">HHC <span class="text-xs text-blue-500/50 lowercase font-normal">(horas)</span></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800/50">
+                {% for fila in datos_reporte %}
+                <tr class="hover:bg-[#0f1117]/50 transition-colors">
+                    <td class="px-6 py-4 text-white font-medium">{{ fila.departamento }}</td>
+                    <td class="px-6 py-4 text-gray-300 text-center">{{ fila.total_h }}</td>
+                    <td class="px-6 py-4 text-gray-300 text-center">{{ fila.hc }}</td>
+                    <td class="px-6 py-4 text-[#3b82f6] font-bold text-center bg-blue-500/5">{{ fila.hhc }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">No hay datos registrados para este periodo.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

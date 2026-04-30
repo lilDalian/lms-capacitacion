@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .stat-card {
+        background-color: var(--nav-bg);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .bg-blue-soft { background-color: rgba(59, 130, 246, 0.1); color: var(--primary-blue); }
+    .bg-green-soft { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .bg-yellow-soft { background-color: rgba(234, 179, 8, 0.1); color: #eab308; }
+    .bg-purple-soft { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; }
+
+    .quick-access-card {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .quick-access-card:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-color: var(--primary-blue);
+        color: white;
+    }
+
+    .quick-access-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--primary-blue);
+    }
+</style>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="fw-bold mb-1">Gestión de Prácticas Operativas</h2>
+        <p class="text-secondary">Resumen y estado general de las capacitaciones</p>
+    </div>
+</div>
+
+<!-- Tarjetas Estadísticas -->
+<div class="row g-4 mb-5">
+    <!-- Total Prácticas -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-secondary mb-0">Total Prácticas</h6>
+                <div class="icon-box bg-blue-soft">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-0">{{ total_practicas|default:"0" }}</h3>
+        </div>
+    </div>
+
+    <!-- Programadas -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-secondary mb-0">Programadas</h6>
+                <div class="icon-box bg-purple-soft">
+                    <i class="fa-regular fa-calendar-check"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-0">{{ programadas|default:"0" }}</h3>
+        </div>
+    </div>
+
+    <!-- Pendientes -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-secondary mb-0">Pendientes</h6>
+                <div class="icon-box bg-yellow-soft">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-0">{{ pendientes|default:"0" }}</h3>
+        </div>
+    </div>
+
+    <!-- Completadas -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-secondary mb-0">Completadas</h6>
+                <div class="icon-box bg-green-soft">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-0">{{ completadas|default:"0" }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos Rápidos -->
+<h4 class="fw-bold mb-4">Accesos Rápidos</h4>
+<div class="row g-4">
+    <div class="col-md-4">
+        <a href="/practicas/nueva/" class="quick-access-card">
+            <i class="fa-solid fa-file-circle-plus quick-access-icon"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Nueva Cédula</h5>
+                <small class="text-secondary">Crear registro de práctica</small>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-4">
+        <a href="/practicas/" class="quick-access-card">
+            <i class="fa-solid fa-list-check quick-access-icon"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Ver Prácticas</h5>
+                <small class="text-secondary">Historial y seguimientos</small>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-4">
+        <a href="/permisos/" class="quick-access-card">
+            <i class="fa-solid fa-user-shield quick-access-icon"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Gestionar Permisos</h5>
+                <small class="text-secondary">Roles y accesos del sistema</small>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
