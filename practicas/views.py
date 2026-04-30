@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import PracticaOperativa, AsistenciaPractica, Colaborador
 from instructores.models import Instructor
 from departamentos.models import Departamento
@@ -86,9 +87,11 @@ def nueva_cedula(request):
                     )
                     
             # 8. Redirigir al dashboard si todo sale bien
+            messages.success(request, '✅ Cédula guardada exitosamente')
             return redirect('dashboard')
             
         except Exception as e:
+            messages.error(request, f'❌ Error al guardar: {str(e)}')
             print(f"Error al guardar cédula: {e}")
             
             # En caso de error, necesitamos volver a mandar instructores para el dropdown

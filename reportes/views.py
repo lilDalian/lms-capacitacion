@@ -31,7 +31,7 @@ def reporte_hh(request):
             departamento=depto,
             fecha_inicio__year=anio,
             fecha_inicio__month=mes
-        )
+        ).prefetch_related('asistenciapractica_set')
         
         hc_total = 0  # Total de asistentes (Headcount)
         total_h = 0   # Total de minutos (asistentes * duración)

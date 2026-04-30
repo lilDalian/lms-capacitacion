@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Instructor
 from departamentos.models import Departamento
 import json
@@ -10,7 +11,12 @@ def permisos(request):
         nombre = request.POST.get('nombre_completo')
         correo = request.POST.get('correo')
         depto_id = request.POST.get('departamento')
-        departamento = Departamento.objects.get(id=depto_id)
+        try:
+            departamento = Departamento.objects.get(id=depto_id)
+        except Departamento.DoesNotExist:
+            messages.error(request, 'Departamento no encontrado')
+            return redirect('permisos')
+            
         Instructor.objects.create(
             nombre_completo=nombre,
             correo=correo,
