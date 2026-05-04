@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Nueva Cédula{% endblock %}
+{% block title %}Nueva Práctica{% endblock %}
 
 {% block content %}
 <style>
     /* Estilos Premium para Formularios Oscuros */
     .card-custom {
-        background-color: #1e293b; /* Fondo un poco más claro que el base */
+        background-color: #1e293b;
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    
+
     .form-control, .form-select {
         background-color: #0f1117;
         border: 1px solid #334155;
@@ -27,7 +27,7 @@
         box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
     }
 
-    /* Ocultar icono de calendario default en algunos navegadores para estilizar mejor */
+    /* Ocultar icono de calendario default en algunos navegadores */
     ::-webkit-calendar-picker-indicator {
         filter: invert(1);
         cursor: pointer;
@@ -59,8 +59,9 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.5rem;
+        transition: border-color 0.3s;
     }
-    
+
     .btn-remove {
         color: #ef4444;
         background: transparent;
@@ -80,13 +81,24 @@
         background-color: #334155;
         color: white;
     }
+
+    /* Datalist styling helper */
+    input[list] {
+        cursor: text;
+    }
+
+    /* Select deshabilitado (sin departamento aún) */
+    select:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 
 <div class="row justify-content-center">
     <div class="col-lg-10">
-        
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Registrar Nueva Cédula</h2>
+            <h2 class="fw-bold mb-0">Registrar Nueva Práctica</h2>
             <a href="{% url 'dashboard' %}" class="btn btn-outline-custom"><i class="fa-solid fa-arrow-left me-2"></i>Volver al Dashboard</a>
         </div>
 
@@ -94,38 +106,75 @@
             <form action="{% url 'nueva_cedula' %}" method="POST" id="cedulaForm">
                 {% csrf_token %}
 
-                <!-- SECCIÓN 1 — Datos del curso -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- SECCIÓN 1 — Datos del curso                   -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="section-title"><i class="fa-solid fa-book me-2"></i>SECCIÓN 1 — Datos del curso</div>
                 <div class="row g-3 mb-4">
+
+                    <!-- Nombre del Curso -->
                     <div class="col-md-12">
                         <label for="nombre_curso" class="form-label">Nombre del Curso</label>
-                        <input type="text" class="form-control" id="nombre_curso" name="nombre_curso" required placeholder="Ej. Inducción a Seguridad Industrial">
+                        <input type="text" class="form-control" id="nombre_curso" name="nombre_curso"
+                               required placeholder="Ej. Inducción a Seguridad Industrial">
                     </div>
+
+                    <!-- Departamento (NUEVO) -->
                     <div class="col-md-4">
-                        <label for="instructor" class="form-label">Instructor</label>
-                        <select class="form-select" id="instructor" name="instructor" required>
-                            <option value="" disabled selected>Selecciona un instructor...</option>
-                            {% for inst in instructores %}
-                                <option value="{{ inst.id }}">{{ inst.nombre_completo }}</option>
+                        <label for="departamento" class="form-label">
+                            <i class="fa-solid fa-building me-1 text-primary"></i>Departamento
+                        </label>
+                        <select class="form-select" id="departamento" name="departamento" required>
+                            <option value="" disabled selected>Selecciona departamento...</option>
+                            {% for dep in departamentos %}
+                                <option value="{{ dep.id }}">{{ dep.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>
+
+                    <!-- Instructor — se filtra por departamento vía JS -->
+                    <div class="col-md-4">
+                        <label for="instructor" class="form-label">Instructor</label>
+                        <select class="form-select" id="instructor" name="instructor" required disabled>
+                            <option value="" disabled selected>Selecciona departamento primero...</option>
+                        </select>
+                    </div>
+
+                    <!-- Lugar con datalist (MEJORADO) -->
                     <div class="col-md-4">
                         <label for="lugar" class="form-label">Lugar</label>
-                        <input type="text" class="form-control" id="lugar" name="lugar" required placeholder="Ej. Sala de Juntas A">
+                        <input type="text" class="form-control" id="lugar" name="lugar"
+                               required placeholder="Ej. Sala de Capacitación A"
+                               list="lugares_sugeridos" autocomplete="off">
+                        <datalist id="lugares_sugeridos">
+                            <option value="Sala de Capacitación A">
+                            <option value="Sala de Capacitación B">
+                            <option value="Comedor">
+                            <option value="Área de trabajo">
+                            <option value="Patio trasero">
+                        </datalist>
                     </div>
+
+                    <!-- Duración -->
                     <div class="col-md-4">
                         <label for="duracion_minutos" class="form-label">Duración</label>
                         <select class="form-select" id="duracion_minutos" name="duracion_minutos" required>
                             <option value="" disabled selected>Selecciona duración...</option>
+                            <option value="5">5 Minutos</option>
+                            <option value="10">10 Minutos</option>
                             <option value="15">15 Minutos</option>
-                            <option value="30">30 Minutos</option>
-                            <option value="60">60 Minutos</option>
+                            <option value="20">20 Minutos</option>
                         </select>
+                        <div class="form-text mt-1" style="color:#f59e0b; font-size:0.8rem;">
+                            ⚠️ Las prácticas no deben exceder 20 min. Si dura más, se registra como Curso.
+                        </div>
                     </div>
+
                 </div>
 
-                <!-- SECCIÓN 2 — Periodo -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- SECCIÓN 2 — Periodo                           -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="section-title"><i class="fa-regular fa-calendar-days me-2"></i>SECCIÓN 2 — Periodo</div>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
@@ -138,7 +187,9 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 3 — Horario -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- SECCIÓN 3 — Horario                           -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="section-title"><i class="fa-regular fa-clock me-2"></i>SECCIÓN 3 — Horario</div>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
@@ -151,7 +202,9 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 4 — Estatus y expiración -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- SECCIÓN 4 — Estatus y expiración              -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="section-title"><i class="fa-solid fa-chart-pie me-2"></i>SECCIÓN 4 — Estatus y expiración</div>
                 <div class="row g-3 mb-5">
                     <div class="col-md-6">
@@ -168,11 +221,23 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 5 — Colaboradores inscritos -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- SECCIÓN 5 — Colaboradores inscritos           -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="section-title"><i class="fa-solid fa-users me-2"></i>SECCIÓN 5 — Colaboradores inscritos</div>
+
+                <!-- Aviso: seleccionar departamento primero -->
+                <div id="aviso_departamento" class="alert alert-secondary py-2 mb-3" style="font-size:0.9rem;">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Selecciona un <strong>departamento</strong> en Sección 1 para ver los colaboradores disponibles.
+                </div>
+
                 <div class="row g-3 mb-4">
+                    <!-- Select de colaboradores filtrado por JS -->
                     <div class="col-md-10">
-                        <input type="text" class="form-control" id="nuevo_colaborador" placeholder="Ingresa el nombre o número del colaborador">
+                        <select class="form-select" id="select_colaborador" disabled>
+                            <option value="" disabled selected>— Selecciona un colaborador —</option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <button type="button" class="btn btn-outline-primary w-100 h-100" id="btnAgregarColaborador">
@@ -181,19 +246,19 @@
                     </div>
                 </div>
 
-                <!-- Contenedor de la lista dinámica -->
-                <div id="lista_colaboradores" class="mb-5">
-                    <!-- Los colaboradores se añadirán aquí vía JS -->
-                </div>
+                <!-- Lista visual de colaboradores agregados -->
+                <div id="lista_colaboradores" class="mb-5"></div>
 
-                <!-- Contenedor Oculto para enviar los datos de los colaboradores en el POST -->
+                <!-- Hidden inputs que se envían en el POST (IDs) -->
                 <div id="colaboradores_hidden_inputs"></div>
 
-                <!-- Botones de Acción -->
+                <!-- ══════════════════════════════════════════════ -->
+                <!-- Botones de Acción                             -->
+                <!-- ══════════════════════════════════════════════ -->
                 <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-secondary">
                     <button type="reset" class="btn btn-outline-custom px-4" id="btnReset">Restablecer</button>
                     <button type="submit" class="btn btn-primary-custom px-5">
-                        <i class="fa-solid fa-save me-2"></i> Guardar Cédula
+                        <i class="fa-solid fa-save me-2"></i> Guardar Práctica
                     </button>
                 </div>
 
@@ -202,71 +267,158 @@
     </div>
 </div>
 
-<!-- Lógica JS para la lista dinámica -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- JS: Filtrado dinámico por departamento                        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const btnAgregar = document.getElementById('btnAgregarColaborador');
-        const inputColaborador = document.getElementById('nuevo_colaborador');
-        const listaColaboradores = document.getElementById('lista_colaboradores');
-        const hiddenInputsContainer = document.getElementById('colaboradores_hidden_inputs');
-        const btnReset = document.getElementById('btnReset');
-        let colaboradorCount = 0;
+document.addEventListener("DOMContentLoaded", function () {
 
-        function agregarColaborador() {
-            const nombre = inputColaborador.value.trim();
-            if (nombre === "") return;
+    // ── Datos desde Django (JSON seguro) ───────────────────────────────
+    const instructoresData  = {{ instructores_json|safe }};
+    const colaboradoresData = {{ colaboradores_json|safe }};
 
-            colaboradorCount++;
+    // ── Referencias DOM ────────────────────────────────────────────────
+    const selDepartamento   = document.getElementById('departamento');
+    const selInstructor     = document.getElementById('instructor');
+    const selColaborador    = document.getElementById('select_colaborador');
+    const btnAgregar        = document.getElementById('btnAgregarColaborador');
+    const listaColabs       = document.getElementById('lista_colaboradores');
+    const hiddenContainer   = document.getElementById('colaboradores_hidden_inputs');
+    const btnReset          = document.getElementById('btnReset');
+    const avisoDepto        = document.getElementById('aviso_departamento');
 
-            // Crear elemento visual en la lista
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'colaborador-item';
-            itemDiv.id = 'colab_item_' + colaboradorCount;
-            itemDiv.innerHTML = `
-                <span><i class="fa-solid fa-user me-2 text-secondary"></i> ${nombre}</span>
-                <button type="button" class="btn-remove" onclick="removerColaborador(${colaboradorCount})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            `;
-            listaColaboradores.appendChild(itemDiv);
+    const agregados = new Set(); // previene duplicados por ID
 
-            // Crear input hidden para mandar en el POST (name="colaboradores[]")
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'colaboradores[]';
-            hiddenInput.value = nombre;
-            hiddenInput.id = 'colab_hidden_' + colaboradorCount;
-            hiddenInputsContainer.appendChild(hiddenInput);
+    // ── 1. Cambio de departamento → filtrar Instructores y Colaboradores
+    selDepartamento.addEventListener('change', function () {
+        const deptoId = parseInt(this.value);
 
-            // Limpiar input y enfocar
-            inputColaborador.value = "";
-            inputColaborador.focus();
+        // — Filtrar y poblar Instructores —
+        const instructoresFiltrados = instructoresData.filter(i => i.departamento_id === deptoId);
+        selInstructor.innerHTML = '<option value="" disabled selected>Selecciona un instructor...</option>';
+        if (instructoresFiltrados.length === 0) {
+            selInstructor.innerHTML = '<option value="" disabled selected>Sin instructores en este departamento</option>';
+        } else {
+            instructoresFiltrados.forEach(inst => {
+                const opt = document.createElement('option');
+                opt.value = inst.id;
+                opt.textContent = inst.nombre_completo;
+                selInstructor.appendChild(opt);
+            });
+        }
+        selInstructor.disabled = false;
+
+        // — Filtrar y poblar Colaboradores —
+        const colaboradoresFiltrados = colaboradoresData.filter(c => c.departamento_id === deptoId);
+        selColaborador.innerHTML = '<option value="" disabled selected>— Selecciona un colaborador —</option>';
+        if (colaboradoresFiltrados.length === 0) {
+            selColaborador.innerHTML = '<option value="" disabled selected>Sin colaboradores en este departamento</option>';
+            selColaborador.disabled = true;
+        } else {
+            colaboradoresFiltrados.forEach(col => {
+                const opt = document.createElement('option');
+                opt.value = col.id;
+                opt.textContent = col.nombre_completo;
+                selColaborador.appendChild(opt);
+            });
+            selColaborador.disabled = false;
         }
 
-        // Evento click del botón
-        btnAgregar.addEventListener('click', agregarColaborador);
+        // Limpiar lista de agregados al cambiar departamento
+        listaColabs.innerHTML     = '';
+        hiddenContainer.innerHTML = '';
+        agregados.clear();
 
-        // Permitir agregar presionando "Enter"
-        inputColaborador.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Evita que se haga submit del formulario
-                agregarColaborador();
-            }
-        });
-
-        // Limpiar lista dinámica si presionan "Restablecer"
-        btnReset.addEventListener('click', function() {
-            listaColaboradores.innerHTML = '';
-            hiddenInputsContainer.innerHTML = '';
-        });
-
-        // Hacer la función global para el onclick del botón de remover
-        window.removerColaborador = function(id) {
-            const item = document.getElementById('colab_item_' + id);
-            const hidden = document.getElementById('colab_hidden_' + id);
-            if(item) item.remove();
-            if(hidden) hidden.remove();
-        };
+        // Ocultar aviso
+        avisoDepto.style.display = 'none';
     });
+
+    // ── 2. Agregar colaborador ─────────────────────────────────────────
+    function agregarColaborador() {
+        // Validar que haya departamento seleccionado
+        if (!selDepartamento.value) {
+            avisoDepto.style.display = 'block';
+            avisoDepto.classList.add('alert-warning');
+            avisoDepto.classList.remove('alert-secondary');
+            selDepartamento.focus();
+            return;
+        }
+
+        const id     = selColaborador.value;
+        const nombre = selColaborador.options[selColaborador.selectedIndex]?.text;
+
+        if (!id || id === "") return;
+
+        // Prevenir duplicados — resaltar el item existente
+        if (agregados.has(String(id))) {
+            const existing = document.getElementById('colab_item_' + id);
+            if (existing) {
+                existing.style.borderColor = '#f59e0b';
+                existing.style.boxShadow   = '0 0 0 2px rgba(245,158,11,0.3)';
+                setTimeout(() => {
+                    existing.style.borderColor = '#334155';
+                    existing.style.boxShadow   = 'none';
+                }, 1200);
+            }
+            return;
+        }
+
+        agregados.add(String(id));
+
+        // Ítem visual
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'colaborador-item';
+        itemDiv.id = 'colab_item_' + id;
+        itemDiv.innerHTML = `
+            <span><i class="fa-solid fa-user me-2 text-secondary"></i>${nombre}</span>
+            <button type="button" class="btn-remove" onclick="removerColaborador('${id}')">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+        listaColabs.appendChild(itemDiv);
+
+        // Hidden input con el ID (no el nombre)
+        const hiddenInput   = document.createElement('input');
+        hiddenInput.type    = 'hidden';
+        hiddenInput.name    = 'colaboradores[]';
+        hiddenInput.value   = id;
+        hiddenInput.id      = 'colab_hidden_' + id;
+        hiddenContainer.appendChild(hiddenInput);
+
+        // Reset select al placeholder
+        selColaborador.value = '';
+    }
+
+    btnAgregar.addEventListener('click', agregarColaborador);
+
+    // ── 3. Remover colaborador de la lista ────────────────────────────
+    window.removerColaborador = function (id) {
+        const item   = document.getElementById('colab_item_'   + id);
+        const hidden = document.getElementById('colab_hidden_' + id);
+        if (item)   item.remove();
+        if (hidden) hidden.remove();
+        agregados.delete(String(id));
+    };
+
+    // ── 4. Reset — limpiar todo el formulario ─────────────────────────
+    btnReset.addEventListener('click', function () {
+        listaColabs.innerHTML     = '';
+        hiddenContainer.innerHTML = '';
+        agregados.clear();
+
+        // Restablecer selects dependientes
+        selInstructor.innerHTML  = '<option value="" disabled selected>Selecciona departamento primero...</option>';
+        selInstructor.disabled   = true;
+        selColaborador.innerHTML = '<option value="" disabled selected>— Selecciona un colaborador —</option>';
+        selColaborador.disabled  = true;
+
+        // Restaurar aviso informativo
+        avisoDepto.style.display = 'block';
+        avisoDepto.classList.remove('alert-warning');
+        avisoDepto.classList.add('alert-secondary');
+        avisoDepto.innerHTML = '<i class="fa-solid fa-circle-info me-2"></i>Selecciona un <strong>departamento</strong> en Sección 1 para ver los colaboradores disponibles.';
+    });
+
+});
 </script>
 {% endblock %}
