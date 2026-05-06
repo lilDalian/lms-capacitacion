@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.shortcuts import render
 from departamentos.models import Departamento
 from practicas.models import PracticaOperativa
@@ -59,6 +60,9 @@ def reporte_hh(request):
     # 4. Ordenar por HHC descendente
     datos_reporte.sort(key=lambda x: x['hhc'], reverse=True)
     
+    # Convertir a JSON de forma segura para Chart.js
+    datos_reporte_json = json.dumps(datos_reporte)
+    
     # Listas para pintar los selects en el template
     meses = [
         (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
@@ -68,6 +72,7 @@ def reporte_hh(request):
     
     context = {
         'datos_reporte': datos_reporte,
+        'datos_reporte_json': datos_reporte_json,
         'mes_actual': mes,
         'anio_actual': anio,
         'meses': meses,

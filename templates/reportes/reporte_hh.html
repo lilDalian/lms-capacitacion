@@ -2,65 +2,187 @@
 {% block title %}Reporte de HH por Departamento{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-white mb-2">Reporte de Horas Hombre (HH)</h1>
-    <p class="text-gray-400">Consulta de HHC generadas por cada departamento.</p>
+<!-- Include Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="mb-4">
+    <h1 class="h3 text-white mb-2 fw-bold">Reporte de Horas Hombre (HH)</h1>
+    <p class="text-secondary">Consulta de HHC generadas por cada departamento.</p>
 </div>
 
-<!-- Filtros -->
-<div class="bg-[#1a1d27] p-6 rounded-xl border border-gray-800 mb-8 shadow-lg">
-    <form method="GET" action="{% url 'reporte_hh' %}" class="flex flex-wrap gap-4 items-end">
-        <div class="w-full md:w-1/3">
-            <label for="mes" class="block text-sm font-medium text-gray-400 mb-2">Mes</label>
-            <select name="mes" id="mes" class="w-full bg-[#0f1117] border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] outline-none transition-colors">
+<!-- 1. Filtros -->
+<div class="card p-4 mb-4 shadow-sm" style="background-color: #1a1d27; border: 1px solid #2d3748; border-radius: 0.75rem;">
+    <form method="GET" action="{% url 'reporte_hh' %}" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label for="mes" class="form-label text-secondary mb-1" style="font-size: 0.875rem;">Mes</label>
+            <select name="mes" id="mes" class="form-select bg-dark border-secondary text-white shadow-none">
                 {% for m_num, m_nombre in meses %}
                     <option value="{{ m_num }}" {% if m_num == mes_actual %}selected{% endif %}>{{ m_nombre }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="w-full md:w-1/3">
-            <label for="anio" class="block text-sm font-medium text-gray-400 mb-2">Año</label>
-            <select name="anio" id="anio" class="w-full bg-[#0f1117] border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:border-[#3b82f6] focus:ring-1 focus:ring-[#3b82f6] outline-none transition-colors">
-                {% for a in anios %}
-                    <option value="{{ a }}" {% if a == anio_actual %}selected{% endif %}>{{ a }}</option>
-                {% endfor %}
+        <div class="col-md-5">
+            <label for="anio" class="form-label text-secondary mb-1" style="font-size: 0.875rem;">Año</label>
+            <select name="anio" id="anio" class="form-select bg-dark border-secondary text-white shadow-none">
+                <option value="2024" {% if anio_actual == 2024 %}selected{% endif %}>2024</option>
+                <option value="2025" {% if anio_actual == 2025 %}selected{% endif %}>2025</option>
+                <option value="2026" {% if anio_actual == 2026 %}selected{% endif %}>2026</option>
+                <option value="2027" {% if anio_actual == 2027 %}selected{% endif %}>2027</option>
+                <option value="2028" {% if anio_actual == 2028 %}selected{% endif %}>2028</option>
             </select>
         </div>
-        <div class="w-full md:w-auto">
-            <button type="submit" class="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <i class="fas fa-filter mr-2"></i> Filtrar
+        <div class="col-md-2">
+            <button type="submit" class="btn text-white w-100 fw-bold shadow" style="background-color: #3b82f6; border: none;">
+                <i class="fas fa-filter me-2"></i> Filtrar
             </button>
         </div>
     </form>
 </div>
 
-<!-- Tabla de Resultados -->
-<div class="bg-[#1a1d27] rounded-xl border border-gray-800 overflow-hidden shadow-lg">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-[#0f1117] text-gray-400 text-sm uppercase tracking-wider border-b border-gray-800">
-                    <th class="px-6 py-4 font-medium">Departamento</th>
-                    <th class="px-6 py-4 font-medium text-center">Total H <span class="text-xs text-gray-500 lowercase font-normal">(minutos)</span></th>
-                    <th class="px-6 py-4 font-medium text-center">HC <span class="text-xs text-gray-500 lowercase font-normal">(asistentes)</span></th>
-                    <th class="px-6 py-4 font-medium text-center text-[#3b82f6]">HHC <span class="text-xs text-blue-500/50 lowercase font-normal">(horas)</span></th>
+<!-- 2. Gráfica de Barras -->
+<div class="card p-4 mb-4 shadow-sm" style="background-color: #1a1d27; border: 1px solid #2d3748; border-radius: 0.75rem;">
+    <div style="height: 400px; width: 100%;">
+        <canvas id="hhcChart"></canvas>
+    </div>
+</div>
+
+<style>
+    /* Forzar fondo oscuro/transparente en la tabla Bootstrap */
+    .custom-table {
+        --bs-table-bg: transparent;
+        --bs-table-color: #e2e8f0;
+        --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+        --bs-table-hover-color: #ffffff;
+    }
+</style>
+
+<!-- 3. Tabla de Resultados -->
+<div class="card overflow-hidden shadow-sm" style="background-color: #1a1d27; border: 1px solid #2d3748; border-radius: 0.75rem;">
+    <div class="table-responsive">
+        <table class="table custom-table table-borderless table-hover mb-0 align-middle">
+            <thead style="background-color: #0f1117; border-bottom: 1px solid #2d3748;">
+                <tr class="text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.05em;">
+                    <th class="py-3 px-4 fw-medium text-white">Departamento</th>
+                    <th class="py-3 px-4 fw-medium text-center text-white">Total H <span class="text-muted text-lowercase fw-normal" style="font-size: 0.75rem;">(minutos)</span></th>
+                    <th class="py-3 px-4 fw-medium text-center text-white">HC <span class="text-muted text-lowercase fw-normal" style="font-size: 0.75rem;">(asistentes)</span></th>
+                    <th class="py-3 px-4 fw-medium text-center" style="color: #3b82f6;">HHC <span class="text-lowercase fw-normal" style="color: rgba(59, 130, 246, 0.5); font-size: 0.75rem;">(horas)</span></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-800/50">
+            <tbody style="border-top: none;">
                 {% for fila in datos_reporte %}
-                <tr class="hover:bg-[#0f1117]/50 transition-colors">
-                    <td class="px-6 py-4 text-white font-medium">{{ fila.departamento }}</td>
-                    <td class="px-6 py-4 text-gray-300 text-center">{{ fila.total_h }}</td>
-                    <td class="px-6 py-4 text-gray-300 text-center">{{ fila.hc }}</td>
-                    <td class="px-6 py-4 text-[#3b82f6] font-bold text-center bg-blue-500/5">{{ fila.hhc }}</td>
+                <tr style="border-bottom: 1px solid rgba(45, 55, 72, 0.5);">
+                    <td class="py-3 px-4 fw-medium">{{ fila.departamento }}</td>
+                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.total_h }}</td>
+                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.hc }}</td>
+                    
+                    {% if fila.hhc == 0 %}
+                        <!-- Si HHC == 0: sin color especial, solo texto gris -->
+                        <td class="py-3 px-4 text-center fw-medium" style="color: #94a3b8;">{{ fila.hhc }}</td>
+                    {% elif fila.hhc >= 5 %}
+                        <!-- Si HHC >= 5: verde suave -->
+                        <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(34, 197, 94, 0.15); color: #4ade80;">{{ fila.hhc }}</td>
+                    {% elif fila.hhc >= 2 %}
+                        <!-- Si HHC >= 2 y < 5: amarillo suave -->
+                        <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(234, 179, 8, 0.15); color: #facc15;">{{ fila.hhc }}</td>
+                    {% else %}
+                        <!-- Si HHC > 0 y < 2: rojo suave -->
+                        <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(239, 68, 68, 0.15); color: #f87171;">{{ fila.hhc }}</td>
+                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">No hay datos registrados para este periodo.</td>
+                    <td colspan="4" class="py-5 text-center text-secondary fst-italic">No hay datos registrados para este periodo.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Extraer datos del contexto Django de forma segura (usando datos_reporte_json serializado)
+    const rawData = {{ datos_reporte_json|safe|default:"[]" }};
+    
+    // 2. Filtrar solo departamentos con HHC > 0
+    const filteredData = rawData.filter(item => item.hhc > 0);
+    
+    // Preparar labels (eje Y) y data (eje X)
+    const labels = filteredData.map(item => item.departamento);
+    const dataHHC = filteredData.map(item => item.hhc);
+
+    // 3. Obtener texto del mes y año para el título dinámico
+    const mesSelect = document.getElementById('mes');
+    const mesTexto = mesSelect.options[mesSelect.selectedIndex].text;
+    const anioTexto = document.getElementById('anio').value;
+
+    // 4. Inicializar gráfica Chart.js
+    const ctx = document.getElementById('hhcChart').getContext('2d');
+    
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Segoe UI', system-ui, -apple-system, sans-serif";
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'HHC',
+                data: dataHHC,
+                backgroundColor: '#3b82f6',
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Convertir a barras horizontales
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // Ocultamos la leyenda
+                },
+                title: {
+                    display: true,
+                    text: `GVLC HHC - ${mesTexto} ${anioTexto}`,
+                    color: '#ffffff',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: { top: 10, bottom: 20 }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 17, 23, 0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#2d3748',
+                    borderWidth: 1,
+                    padding: 12
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(45, 55, 72, 0.5)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#94a3b8'
+                    },
+                    beginAtZero: true
+                },
+                y: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#e2e8f0'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}
