@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 import json
 from .models import PracticaOperativa, AsistenciaPractica, Colaborador
@@ -111,3 +111,18 @@ def nueva_cedula(request):
     # GET
     context = _build_context()
     return render(request, 'practicas/nueva_cedula.html', context)
+
+
+def detalle_practica(request, id):
+    practica = get_object_or_404(PracticaOperativa, id=id)
+    asistencias = AsistenciaPractica.objects.filter(
+        practica=practica
+    ).select_related('colaborador')
+    hhc = (asistencias.count() * practica.duracion_minutos) / 60
+    context = {
+        'practica': practica,
+        'asistencias': asistencias,
+        'total_asistentes': asistencias.count(),
+        'hhc': round(hhc, 2),
+    }
+    return render(request, 'practicas/detalle_practica.html', context)
