@@ -17,6 +17,39 @@
         </div>
     </div>
 
+    <!-- Buscador de Prácticas -->
+    <div class="row mb-4">
+        <div class="col-12 col-md-6 col-lg-5">
+            <div class="input-group shadow-sm" id="kanban-search-wrapper">
+                <span class="input-group-text border-0" style="background-color:#1a1d27; color:#6b7280;">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input
+                    type="text"
+                    id="kanban-search"
+                    class="form-control border-0"
+                    placeholder="Buscar práctica por nombre…"
+                    autocomplete="off"
+                    style="background-color:#1a1d27; color:#e5e7eb;"
+                />
+                <button
+                    class="btn border-0 d-none"
+                    id="kanban-search-clear"
+                    title="Limpiar búsqueda"
+                    style="background-color:#1a1d27; color:#6b7280;"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-7 d-flex align-items-center mt-2 mt-md-0">
+            <small id="kanban-search-info" class="text-secondary" style="opacity:0; transition: opacity .2s;">
+                <i class="fas fa-filter me-1"></i>
+                Mostrando resultados para: <span id="kanban-search-term" class="text-white fw-semibold"></span>
+            </small>
+        </div>
+    </div>
+
     <!-- Tablero Kanban -->
     <div class="row g-4">
 
@@ -32,7 +65,7 @@
                 </div>
                 <div class="card-body p-3">
                     {% for p in programadas %}
-                    <div class="card border-0 mb-3 shadow-sm kanban-card"
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" data-name="{{ p.nombre_curso|lower }}"
                         style="background-color: #0f1117; border-left: 4px solid #3b82f6 !important;">
                         <div class="card-body p-3">
                             <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
@@ -40,8 +73,7 @@
                                 <div class="mb-1"><i class="fas fa-user-tie me-2 text-primary opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
                                 <div class="mb-1"><i class="fas fa-building me-2 text-primary opacity-75"></i>{{ p.departamento.nombre }}</div>
                                 <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-primary opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
-                                <div><i class="fas fa-clock me-2 text-primary opacity-75"></i>{{ p.duracion_minutos }}
-                                    min</div>
+                                <div><i class="fas fa-clock me-2 text-primary opacity-75"></i>{{ p.duracion_minutos }} min</div>
                             </div>
                             <div class="d-grid">
                                 <a href="{% url 'detalle_practica' p.id %}"
@@ -51,11 +83,15 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div class="text-center py-5 opacity-50">
+                    <div class="text-center py-5 opacity-50 empty-state-default">
                         <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
                         <p class="text-secondary small">No hay prácticas en este estado</p>
                     </div>
                     {% endfor %}
+                    <div class="text-center py-5 opacity-50 empty-state-search d-none">
+                        <i class="fas fa-search text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">Sin resultados para esta búsqueda</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,7 +108,7 @@
                 </div>
                 <div class="card-body p-3">
                     {% for p in pendientes %}
-                    <div class="card border-0 mb-3 shadow-sm kanban-card"
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" data-name="{{ p.nombre_curso|lower }}"
                         style="background-color: #0f1117; border-left: 4px solid #eab308 !important;">
                         <div class="card-body p-3">
                             <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
@@ -80,8 +116,7 @@
                                 <div class="mb-1"><i class="fas fa-user-tie me-2 text-warning opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
                                 <div class="mb-1"><i class="fas fa-building me-2 text-warning opacity-75"></i>{{ p.departamento.nombre }}</div>
                                 <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-warning opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
-                                <div><i class="fas fa-clock me-2 text-warning opacity-75"></i>{{ p.duracion_minutos }}
-                                    min</div>
+                                <div><i class="fas fa-clock me-2 text-warning opacity-75"></i>{{ p.duracion_minutos }} min</div>
                             </div>
                             <div class="d-grid">
                                 <a href="{% url 'detalle_practica' p.id %}"
@@ -91,11 +126,15 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div class="text-center py-5 opacity-50">
+                    <div class="text-center py-5 opacity-50 empty-state-default">
                         <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
                         <p class="text-secondary small">No hay prácticas en este estado</p>
                     </div>
                     {% endfor %}
+                    <div class="text-center py-5 opacity-50 empty-state-search d-none">
+                        <i class="fas fa-search text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">Sin resultados para esta búsqueda</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -112,7 +151,7 @@
                 </div>
                 <div class="card-body p-3">
                     {% for p in completadas %}
-                    <div class="card border-0 mb-3 shadow-sm kanban-card"
+                    <div class="card border-0 mb-3 shadow-sm kanban-card" data-name="{{ p.nombre_curso|lower }}"
                         style="background-color: #0f1117; border-left: 4px solid #22c55e !important;">
                         <div class="card-body p-3">
                             <h6 class="fw-bold text-white mb-3">{{ p.nombre_curso }}</h6>
@@ -120,8 +159,7 @@
                                 <div class="mb-1"><i class="fas fa-user-tie me-2 text-success opacity-75"></i>{{ p.instructor.nombre_completo }}</div>
                                 <div class="mb-1"><i class="fas fa-building me-2 text-success opacity-75"></i>{{ p.departamento.nombre }}</div>
                                 <div class="mb-1"><i class="fas fa-calendar-alt me-2 text-success opacity-75"></i>{{ p.fecha_inicio|date:"d/m/Y" }}</div>
-                                <div><i class="fas fa-clock me-2 text-success opacity-75"></i>{{ p.duracion_minutos }}
-                                    min</div>
+                                <div><i class="fas fa-clock me-2 text-success opacity-75"></i>{{ p.duracion_minutos }} min</div>
                             </div>
                             <div class="d-grid">
                                 <a href="{% url 'detalle_practica' p.id %}"
@@ -131,11 +169,15 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div class="text-center py-5 opacity-50">
+                    <div class="text-center py-5 opacity-50 empty-state-default">
                         <i class="fas fa-folder-open text-secondary mb-2 fs-2"></i>
                         <p class="text-secondary small">No hay prácticas en este estado</p>
                     </div>
                     {% endfor %}
+                    <div class="text-center py-5 opacity-50 empty-state-search d-none">
+                        <i class="fas fa-search text-secondary mb-2 fs-2"></i>
+                        <p class="text-secondary small">Sin resultados para esta búsqueda</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,5 +202,89 @@
     .tracking-wider {
         letter-spacing: 0.05em;
     }
+
+    /* Buscador */
+    #kanban-search-wrapper {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #kanban-search-wrapper:focus-within {
+        border-color: rgba(59, 130, 246, 0.6);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    #kanban-search::placeholder {
+        color: #4b5563;
+    }
+
+    #kanban-search:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .kanban-card.search-hidden {
+        display: none !important;
+    }
+
+    .kanban-card.search-highlight h6 {
+        color: #60a5fa !important;
+    }
 </style>
+
+<script>
+(function () {
+    const input    = document.getElementById('kanban-search');
+    const clearBtn = document.getElementById('kanban-search-clear');
+    const infoBox  = document.getElementById('kanban-search-info');
+    const termSpan = document.getElementById('kanban-search-term');
+
+    function getColumns() {
+        return Array.from(document.querySelectorAll('.col-md-4')).map(col => ({
+            cards    : col.querySelectorAll('.kanban-card'),
+            badge    : col.querySelector('.badge'),
+            emptyDef : col.querySelector('.empty-state-default'),
+            emptySrch: col.querySelector('.empty-state-search'),
+        }));
+    }
+
+    function applyFilter(query) {
+        const q = query.trim().toLowerCase();
+        const searching = q.length > 0;
+
+        clearBtn.classList.toggle('d-none', !searching);
+        infoBox.style.opacity = searching ? '1' : '0';
+        termSpan.textContent  = searching ? `"${query.trim()}"` : '';
+
+        getColumns().forEach(col => {
+            let visible = 0;
+
+            col.cards.forEach(card => {
+                const name  = card.dataset.name || '';
+                const match = !searching || name.includes(q);
+                card.classList.toggle('search-hidden',    !match);
+                card.classList.toggle('search-highlight', searching && match);
+                if (!searching) card.classList.remove('search-highlight');
+                if (match) visible++;
+            });
+
+            if (col.badge) col.badge.textContent = visible;
+
+            const noCards = col.cards.length === 0;
+            if (col.emptyDef)  col.emptyDef.classList.toggle('d-none',  searching || noCards);
+            if (col.emptySrch) col.emptySrch.classList.toggle('d-none', !searching || visible > 0);
+        });
+    }
+
+    input.addEventListener('input', () => applyFilter(input.value));
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        applyFilter('');
+        input.focus();
+    });
+})();
+</script>
 {% endblock %}

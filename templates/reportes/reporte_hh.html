@@ -63,35 +63,43 @@
             <thead style="background-color: #0f1117; border-bottom: 1px solid #2d3748;">
                 <tr class="text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.05em;">
                     <th class="py-3 px-4 fw-medium text-white">Departamento</th>
-                    <th class="py-3 px-4 fw-medium text-center text-white">Total H <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(minutos)</span></th>
-                    <th class="py-3 px-4 fw-medium text-center text-white">HC <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(asistentes)</span></th>
+                    <th class="py-3 px-4 fw-medium text-center text-white">Duración <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(min)</span></th>
+                    <th class="py-3 px-4 fw-medium text-center text-white">Prácticas <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(máx. colab.)</span></th>
+                    <th class="py-3 px-4 fw-medium text-center text-white">Colaboradores <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(depto.)</span></th>
                     <th class="py-3 px-4 fw-medium text-center" style="color: #3b82f6;">HHC <span class="text-lowercase fw-normal" style="font-size: 0.75rem; color: #94a3b8;">(horas)</span></th>
+                    <th class="py-3 px-4 fw-medium text-white">Colaborador Referencia</th>
                 </tr>
             </thead>
             <tbody style="border-top: none;">
                 {% for fila in datos_reporte %}
                 <tr style="border-bottom: 1px solid rgba(45, 55, 72, 0.5);">
                     <td class="py-3 px-4 fw-medium">{{ fila.departamento }}</td>
-                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.total_h }}</td>
-                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.hc }}</td>
-                    
+                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.duracion_ref }}</td>
+                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.max_practicas }}</td>
+                    <td class="py-3 px-4 text-center" style="color: #cbd5e1;">{{ fila.total_colaboradores }}</td>
+
                     {% if fila.hhc == 0 %}
-                        <!-- Si HHC == 0: sin color especial, solo texto gris -->
+                        <!-- HHC == 0: texto gris -->
                         <td class="py-3 px-4 text-center fw-medium" style="color: #94a3b8;">{{ fila.hhc }}</td>
-                    {% elif fila.hhc >= 5 %}
-                        <!-- Si HHC >= 5: verde suave -->
+                    {% elif fila.hhc >= 1 %}
+                        <!-- HHC >= 1: verde -->
                         <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(34, 197, 94, 0.15); color: #4ade80;">{{ fila.hhc }}</td>
-                    {% elif fila.hhc >= 2 %}
-                        <!-- Si HHC >= 2 y < 5: amarillo suave -->
+                    {% elif fila.hhc >= 0.5 %}
+                        <!-- HHC >= 0.5 y < 1: amarillo -->
                         <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(234, 179, 8, 0.15); color: #facc15;">{{ fila.hhc }}</td>
                     {% else %}
-                        <!-- Si HHC > 0 y < 2: rojo suave -->
+                        <!-- HHC > 0 y < 0.5: rojo -->
                         <td class="py-3 px-4 text-center fw-bold" style="background-color: rgba(239, 68, 68, 0.15); color: #f87171;">{{ fila.hhc }}</td>
                     {% endif %}
+
+                    <td class="py-3 px-4" style="color: #94a3b8; font-size: 0.875rem;">
+                        <i class="fa-solid fa-user me-1" style="color: #3b82f6;"></i>
+                        {{ fila.col_referencia }}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="py-5 text-center text-secondary fst-italic">No hay datos registrados para este periodo.</td>
+                    <td colspan="6" class="py-5 text-center text-secondary fst-italic">No hay datos registrados para este periodo.</td>
                 </tr>
                 {% endfor %}
             </tbody>

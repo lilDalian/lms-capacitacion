@@ -13,10 +13,17 @@ class Colaborador(models.Model):
 
 class PracticaOperativa(models.Model):
     DURACION_CHOICES = [
-        (5,  '5 Minutos'),
         (10, '10 Minutos'),
         (15, '15 Minutos'),
         (20, '20 Minutos'),
+        (25, '25 Minutos'),
+        (30, '30 Minutos'),
+        (35, '35 Minutos'),
+        (40, '40 Minutos'),
+        (45, '45 Minutos'),
+        (50, '50 Minutos'),
+        (55, '55 Minutos'),
+        (60, '60 Minutos'),
     ]
     ESTATUS_CHOICES = [
         ('Programado', 'Programado'),
